@@ -17,7 +17,6 @@
         button { padding: 10px 20px; background-color: #06C755; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .typing { font-size: 12px; color: #fff; margin-left: 10px; display: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         
-        /* เพิ่มสไตล์สำหรับรูปภาพ */
         .chat-image { width: 100%; border-radius: 10px; margin-top: 5px; border: 1px solid #ddd; cursor: pointer; }
         .link-btn { display: inline-block; margin-top: 5px; padding: 5px 10px; background: #eee; color: #333; text-decoration: none; border-radius: 5px; font-size: 12px; }
     </style>
@@ -30,14 +29,14 @@
     <div class="chat-area" id="chatBox">
         <div class="message bot">
             สวัสดีค่ะ! 🙏 SchoolFlow AI ยินดีให้บริการค่ะ <br><br>
-            พิมพ์คำสั่งที่ต้องการได้เลย เช่น:<br>
-            👉 <b>"ตารางสอน"</b> (เพื่อดูรูป)<br>
-            👉 <b>"ร่างหนังสือ"</b> (เพื่อโหลดไฟล์)
+            คุยเล่นกับหนูได้ หรือจะสั่งงานก็ได้นะคะ เช่น:<br>
+            👉 <b>"ตารางสอน"</b><br>
+            👉 <b>"ร่างหนังสือขอเชิญวิทยากร"</b>
         </div>
     </div>
     <div class="typing" id="typingIndicator">SchoolFlow AI กำลังพิมพ์...</div>
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="พิมพ์คำสั่ง..." onkeypress="handleEnter(event)">
+        <input type="text" id="userInput" placeholder="พิมพ์ข้อความ..." onkeypress="handleEnter(event)">
         <button onclick="sendMessage()">ส่ง</button>
     </div>
 </div>
@@ -52,7 +51,7 @@
         
         if (text === "") return;
 
-        // ข้อความฝั่งเรา (User)
+        // User Message
         let userDiv = document.createElement("div");
         userDiv.className = "message user";
         userDiv.innerText = text;
@@ -60,7 +59,7 @@
         input.value = "";
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        // จำลอง AI คิด
+        // Typing Simulation
         document.getElementById("typingIndicator").style.display = "block";
         
         setTimeout(() => {
@@ -69,32 +68,52 @@
             botDiv.className = "message bot";
             
             // ==========================================
-            // ส่วนกำหนดคำตอบ (แก้ตรงนี้ถ้าอยากเพิ่มคำสั่ง)
+            // LOGIC การตอบโต้ (Smart Logic)
             // ==========================================
             
+            // 1. เช็คคำสั่งหลักก่อน (Priority สูงสุด)
             if (text.includes("ตารางสอน") || text.includes("ตารางเรียน")) {
-                // 1. ตอบแบบรูปภาพ (ต้องมีไฟล์ schedule.jpg ใน GitHub ก่อนนะ)
                 botDiv.innerHTML = `รับทราบค่ะ! นี่คือตารางสอนของเทอมนี้ค่ะ 📅<br>
-                                    <img src="schedule.jpg" class="chat-image" onclick="window.open(this.src)">
+                                    <img src="schedule.jpg" class="chat-image" onclick="window.open(this.src)" onerror="this.style.display='none'; this.parentElement.innerHTML+='<br>(ไม่พบรูป schedule.jpg ในระบบ)'">
                                     <br><span style="font-size:12px; color:gray;">(คลิกที่รูปเพื่อขยาย)</span>`;
             
-            } else if (text.includes("ร่าง") || text.includes("หนังสือ")) {
-                // 2. ตอบแบบมีลิงก์ให้กดโหลด (จำลองลิงก์)
-                botDiv.innerHTML = `📝 ร่างหนังสือเรื่อง <b>'${text}'</b> เรียบร้อยค่ะ<br><br>
-                                    คุณสามารถตรวจสอบความถูกต้องและปริ้นต์ได้เลยค่ะ<br>
+            } else if (text.includes("ร่าง") || text.includes("หนังสือ") || text.includes("บันทึกข้อความ")) {
+                botDiv.innerHTML = `📝 รับทราบค่ะ! กำลังดำเนินการร่างหนังสือเรื่อง <b>'${text}'</b> ให้อย่างเร่งด่วน...<br><br>
+                                    ✅ เสร็จเรียบร้อยค่ะ<br>
                                     <a href="#" class="link-btn">⬇️ ดาวน์โหลดไฟล์ Word (.docx)</a>`;
             
-            } else if (text.includes("สวัสดี")) {
-                botDiv.innerText = "สวัสดีค่ะอาจารย์! ต้องการข้อมูลส่วนไหนแจ้งหนูได้เลยนะคะ 😊";
-            
+            // 2. เช็คบทสนทนาทั่วไป (General Conversation)
+            } else if (text.includes("สวัสดี") || text.includes("ดีจ้า") || text.includes("ฮัลโหล")) {
+                botDiv.innerText = "สวัสดีค่ะอาจารย์! วันนี้มีอะไรให้หนูช่วยไหมคะ? หรือจะคุยเล่นแก้เหงาก็ได้นะคะ 😊";
+
+            } else if (text.includes("ขอบคุณ") || text.includes("ขอบใจ")) {
+                botDiv.innerText = "ยินดีเสมอค่ะ! เป็นหน้าที่ของ SchoolFlow AI อยู่แล้วค่ะ 💖";
+
+            } else if (text.includes("ชื่ออะไร") || text.includes("คือใคร")) {
+                botDiv.innerText = "หนูชื่อ SchoolFlow AI ค่ะ เป็นผู้ช่วยอัจฉริยะที่ถูกพัฒนาขึ้นเพื่อช่วยลดภาระงานเอกสารของครูไทยค่ะ 🤖";
+
+            } else if (text.includes("เหนื่อย") || text.includes("ท้อ")) {
+                botDiv.innerText = "สู้ๆ นะคะอาจารย์! ✌️ พักดื่มน้ำเย็นๆ สักแก้ว แล้วค่อยลุยต่อ หนูเป็นกำลังใจให้ค่ะ";
+
+            } else if (text.includes("เก่ง") || text.includes("สุดยอด")) {
+                botDiv.innerText = "ขอบคุณค่ะ! เขินจังเลย 😳 หนูจะพยายามพัฒนาตัวเองให้เก่งขึ้นไปอีกค่ะ";
+
+            // 3. ถ้าไม่เข้าเงื่อนไขอะไรเลย (Fallback - ตอบกลางๆ ให้ดูเนียน)
             } else {
-                botDiv.innerText = "ระบบรับข้อมูลเรียบร้อยค่ะ AI กำลังค้นหาข้อมูลเรื่อง '" + text + "' ... ✅";
+                const randomAnswers = [
+                    "รับทราบค่ะ หนูบันทึกข้อมูลนี้ไว้เรียบร้อยแล้วค่ะ ✅",
+                    "น่าสนใจมากค่ะอาจารย์ ช่วยเล่ารายละเอียดเพิ่มเติมอีกนิดได้ไหมคะ?",
+                    "เรื่องนี้อาจต้องตรวจสอบระเบียบกระทรวงเพิ่มเติม เดี๋ยวหนูเช็กให้นะคะ",
+                    "เข้าใจแล้วค่ะ ระบบกำลังประมวลผลข้อมูลดังกล่าวเพื่อนำไปปรับปรุงค่ะ 📝"
+                ];
+                // สุ่มคำตอบ 1 ใน 4 ข้อข้างบน
+                botDiv.innerText = randomAnswers[Math.floor(Math.random() * randomAnswers.length)];
             }
             // ==========================================
 
             chatBox.appendChild(botDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-        }, 1000);
+        }, 1000); // ดีเลย์ 1 วินาทีให้ดูเหมือนคิด
     }
 </script>
 
