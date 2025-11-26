@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolFlow AI Demo</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .phone-frame { width: 375px; height: 667px; background: white; border-radius: 30px; border: 10px solid #333; overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .header { background-color: #06C755; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 18px;}
+        .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-color: #97baec; }
+        .message { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 14px; line-height: 1.4; position: relative; }
+        .bot { background-color: white; align-self: flex-start; border-bottom-left-radius: 5px; color: black; }
+        .user { background-color: #06C755; color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
+        .input-area { padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px; background: white; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        button { padding: 10px 20px; background-color: #06C755; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .typing { font-size: 12px; color: #fff; margin-left: 10px; display: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="header">SchoolFlow AI (Admin)</div>
+    <div class="chat-area" id="chatBox">
+        <div class="message bot">สวัสดีค่ะ! 🙏 SchoolFlow AI ยินดีให้บริการค่ะ <br><br>ต้องการให้ช่วย <b>"ร่างหนังสือราชการ"</b> หรือสอบถามข้อมูลโรงเรียนเรื่องใด พิมพ์บอกได้เลยนะคะ 😊</div>
+    </div>
+    <div class="typing" id="typingIndicator">SchoolFlow AI กำลังพิมพ์...</div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="พิมพ์คำสั่ง... (เช่น ขอร่างจดหมาย)" onkeypress="handleEnter(event)">
+        <button onclick="sendMessage()">ส่ง</button>
+    </div>
+</div>
+
+<script>
+    function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
+
+    function sendMessage() {
+        let input = document.getElementById("userInput");
+        let chatBox = document.getElementById("chatBox");
+        let text = input.value.trim();
+        
+        if (text === "") return;
+
+        // ข้อความฝั่งเรา (User)
+        let userDiv = document.createElement("div");
+        userDiv.className = "message user";
+        userDiv.innerText = text;
+        chatBox.appendChild(userDiv);
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // จำลอง AI คิด
+        document.getElementById("typingIndicator").style.display = "block";
+        
+        setTimeout(() => {
+            document.getElementById("typingIndicator").style.display = "none";
+            let botDiv = document.createElement("div");
+            botDiv.className = "message bot";
+            
+            // Logic การตอบโต้ (Fake AI)
+            if (text.includes("ร่าง") || text.includes("หนังสือ") || text.includes("จดหมาย") || text.includes("ขอ")) {
+                botDiv.innerHTML = "รับทราบค่ะ 📝 ระบบกำลังร่างหนังสือเรื่อง <b>'" + text + "'</b> ...<br><br>------------------<br><b>บันทึกข้อความ</b><br><b>ส่วนราชการ:</b> กลุ่มบริหารงานทั่วไป<br><b>เรื่อง:</b> " + text + "<br><b>เรียน:</b> ผู้อำนวยการโรงเรียน<br><br>ด้วยกลุ่มสาระฯ มีความประสงค์... (คลิกเพื่อดาวน์โหลดไฟล์ Word ฉบับสมบูรณ์)<br>------------------<br>✅ เรียบร้อยค่ะ ต้องการแก้ไขส่วนไหนเพิ่มไหมคะ?";
+            } else if (text.includes("สวัสดี") || text.includes("ดีครับ") || text.includes("ดีค่ะ")) {
+                botDiv.innerText = "สวัสดีค่ะอาจารย์! วันนี้งานยุ่งไหมคะ? ให้หนูช่วยแบ่งเบาภาระเรื่องไหนบอกได้เลยนะคะ ✌️";
+            } else if (text.includes("ตาราง") || text.includes("สอบ")) {
+                botDiv.innerHTML = "📅 <b>กำหนดการสอบปลายภาค:</b><br>- ม.ต้น: 20-22 ก.ย.<br>- ม.ปลาย: 23-25 ก.ย.<br><br>📎 หนูส่งไฟล์ PDF ตารางสอบฉบับเต็มให้แล้วค่ะ";
+            } else {
+                botDiv.innerText = "ระบบรับข้อมูลเรียบร้อยค่ะ! AI กำลังประมวลผลคำสั่ง '" + text + "' เพื่อดำเนินการให้ถูกต้องที่สุดค่ะ ✅";
+            }
+
+            chatBox.appendChild(botDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 1200);
+    }
+</script>
+
+</body>
+</html>
