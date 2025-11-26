@@ -34,4 +34,4 @@
 ---
 ### 🚀 ทดลองใช้งาน (Live Prototype)
 **คลิกที่ลิงก์ด้านล่างเพื่อทดสอบระบบจำลอง:**
-[https://6780119727.github.io/SchoolFlow-AI/]# SchoolFlow-AI
+https://6780119727.github.io/SchoolFlow-AI/# SchoolFlow-AI
