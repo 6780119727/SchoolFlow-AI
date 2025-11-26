@@ -9,13 +9,17 @@
         .phone-frame { width: 375px; height: 667px; background: white; border-radius: 30px; border: 10px solid #333; overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
         .header { background-color: #06C755; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 18px;}
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-color: #97baec; }
-        .message { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 14px; line-height: 1.4; position: relative; }
+        .message { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; }
         .bot { background-color: white; align-self: flex-start; border-bottom-left-radius: 5px; color: black; }
         .user { background-color: #06C755; color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
         .input-area { padding: 10px; border-top: 1px solid #ddd; display: flex; gap: 10px; background: white; }
         input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
         button { padding: 10px 20px; background-color: #06C755; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .typing { font-size: 12px; color: #fff; margin-left: 10px; display: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        
+        /* เพิ่มสไตล์สำหรับรูปภาพ */
+        .chat-image { width: 100%; border-radius: 10px; margin-top: 5px; border: 1px solid #ddd; cursor: pointer; }
+        .link-btn { display: inline-block; margin-top: 5px; padding: 5px 10px; background: #eee; color: #333; text-decoration: none; border-radius: 5px; font-size: 12px; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -24,11 +28,16 @@
 <div class="phone-frame">
     <div class="header">SchoolFlow AI (Admin)</div>
     <div class="chat-area" id="chatBox">
-        <div class="message bot">สวัสดีค่ะ! 🙏 SchoolFlow AI ยินดีให้บริการค่ะ <br><br>ต้องการให้ช่วย <b>"ร่างหนังสือราชการ"</b> หรือสอบถามข้อมูลโรงเรียนเรื่องใด พิมพ์บอกได้เลยนะคะ 😊</div>
+        <div class="message bot">
+            สวัสดีค่ะ! 🙏 SchoolFlow AI ยินดีให้บริการค่ะ <br><br>
+            พิมพ์คำสั่งที่ต้องการได้เลย เช่น:<br>
+            👉 <b>"ตารางสอน"</b> (เพื่อดูรูป)<br>
+            👉 <b>"ร่างหนังสือ"</b> (เพื่อโหลดไฟล์)
+        </div>
     </div>
     <div class="typing" id="typingIndicator">SchoolFlow AI กำลังพิมพ์...</div>
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="พิมพ์คำสั่ง... (เช่น ขอร่างจดหมาย)" onkeypress="handleEnter(event)">
+        <input type="text" id="userInput" placeholder="พิมพ์คำสั่ง..." onkeypress="handleEnter(event)">
         <button onclick="sendMessage()">ส่ง</button>
     </div>
 </div>
@@ -59,20 +68,33 @@
             let botDiv = document.createElement("div");
             botDiv.className = "message bot";
             
-            // Logic การตอบโต้ (Fake AI)
-            if (text.includes("ร่าง") || text.includes("หนังสือ") || text.includes("จดหมาย") || text.includes("ขอ")) {
-                botDiv.innerHTML = "รับทราบค่ะ 📝 ระบบกำลังร่างหนังสือเรื่อง <b>'" + text + "'</b> ...<br><br>------------------<br><b>บันทึกข้อความ</b><br><b>ส่วนราชการ:</b> กลุ่มบริหารงานทั่วไป<br><b>เรื่อง:</b> " + text + "<br><b>เรียน:</b> ผู้อำนวยการโรงเรียน<br><br>ด้วยกลุ่มสาระฯ มีความประสงค์... (คลิกเพื่อดาวน์โหลดไฟล์ Word ฉบับสมบูรณ์)<br>------------------<br>✅ เรียบร้อยค่ะ ต้องการแก้ไขส่วนไหนเพิ่มไหมคะ?";
-            } else if (text.includes("สวัสดี") || text.includes("ดีครับ") || text.includes("ดีค่ะ")) {
-                botDiv.innerText = "สวัสดีค่ะอาจารย์! วันนี้งานยุ่งไหมคะ? ให้หนูช่วยแบ่งเบาภาระเรื่องไหนบอกได้เลยนะคะ ✌️";
-            } else if (text.includes("ตาราง") || text.includes("สอบ")) {
-                botDiv.innerHTML = "📅 <b>กำหนดการสอบปลายภาค:</b><br>- ม.ต้น: 20-22 ก.ย.<br>- ม.ปลาย: 23-25 ก.ย.<br><br>📎 หนูส่งไฟล์ PDF ตารางสอบฉบับเต็มให้แล้วค่ะ";
+            // ==========================================
+            // ส่วนกำหนดคำตอบ (แก้ตรงนี้ถ้าอยากเพิ่มคำสั่ง)
+            // ==========================================
+            
+            if (text.includes("ตารางสอน") || text.includes("ตารางเรียน")) {
+                // 1. ตอบแบบรูปภาพ (ต้องมีไฟล์ schedule.jpg ใน GitHub ก่อนนะ)
+                botDiv.innerHTML = `รับทราบค่ะ! นี่คือตารางสอนของเทอมนี้ค่ะ 📅<br>
+                                    <img src="schedule.jpg" class="chat-image" onclick="window.open(this.src)">
+                                    <br><span style="font-size:12px; color:gray;">(คลิกที่รูปเพื่อขยาย)</span>`;
+            
+            } else if (text.includes("ร่าง") || text.includes("หนังสือ")) {
+                // 2. ตอบแบบมีลิงก์ให้กดโหลด (จำลองลิงก์)
+                botDiv.innerHTML = `📝 ร่างหนังสือเรื่อง <b>'${text}'</b> เรียบร้อยค่ะ<br><br>
+                                    คุณสามารถตรวจสอบความถูกต้องและปริ้นต์ได้เลยค่ะ<br>
+                                    <a href="#" class="link-btn">⬇️ ดาวน์โหลดไฟล์ Word (.docx)</a>`;
+            
+            } else if (text.includes("สวัสดี")) {
+                botDiv.innerText = "สวัสดีค่ะอาจารย์! ต้องการข้อมูลส่วนไหนแจ้งหนูได้เลยนะคะ 😊";
+            
             } else {
-                botDiv.innerText = "ระบบรับข้อมูลเรียบร้อยค่ะ! AI กำลังประมวลผลคำสั่ง '" + text + "' เพื่อดำเนินการให้ถูกต้องที่สุดค่ะ ✅";
+                botDiv.innerText = "ระบบรับข้อมูลเรียบร้อยค่ะ AI กำลังค้นหาข้อมูลเรื่อง '" + text + "' ... ✅";
             }
+            // ==========================================
 
             chatBox.appendChild(botDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-        }, 1200);
+        }, 1000);
     }
 </script>
 
